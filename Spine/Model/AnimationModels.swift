@@ -37,10 +37,11 @@ extension AnimationModel: SpineDecodableDictionary {
     typealias KeysType = Keys
     
     init(_ name: String, _ container: KeyedDecodingContainer<KeysType>) throws {
-
+        
         var groups = [AnimationGroupModelType]()
         
         for groupKey in container.allKeys {
+            //print(groupKey)
             
             guard let groupType = Keys(stringValue: groupKey.stringValue) else {
                 
@@ -49,14 +50,18 @@ extension AnimationModel: SpineDecodableDictionary {
             
             switch groupType {
             case .bones:
+                //print("a")
                 let bonesAnimationGroupContainer = try container.nestedContainer(keyedBy: SpineNameKey.self, forKey: groupKey)
                 
                 var bonesAnimations = [BoneAnimationModel]()
                 
                 for boneAnimationKey in bonesAnimationGroupContainer.allKeys {
-                    
+                    //print(boneAnimationKey)
+                    //print("b")
                     let boneAnimationTimelineContainer = try bonesAnimationGroupContainer.nestedContainer(keyedBy: BoneAnimationModel.Keys.self, forKey: boneAnimationKey)
+                    //print("c")
                     let boneAnimation = try BoneAnimationModel(boneAnimationKey.stringValue, boneAnimationTimelineContainer)
+                    //print("d")
                     bonesAnimations.append(boneAnimation)
                 }
                 groups.append(AnimationGroupModelType.bones(bonesAnimations))
@@ -123,7 +128,7 @@ extension AnimationModel: SpineDecodableDictionary {
                     eventAnimationKeyframes.append(try eventsAnimationGroupContainer.decode(EventKeyfarameModel.self))
                 }
                 groups.append(AnimationGroupModelType.events(eventAnimationKeyframes))
-
+                
             case .draworder:
                 var draworderAnimationGroupContainer = try container.nestedUnkeyedContainer(forKey: groupKey)
                 
@@ -220,7 +225,7 @@ enum BoneAnimationTimelineModelType {
 }
 
 extension BoneAnimationModel: SpineDecodableDictionary {
-
+    
     enum Keys: String, CodingKey {
         
         case rotate
@@ -230,12 +235,13 @@ extension BoneAnimationModel: SpineDecodableDictionary {
     }
     
     typealias KeysType = Keys
-
+    
     init(_ name: String, _ container: KeyedDecodingContainer<KeysType>) throws {
         
         var timelines = [BoneAnimationTimelineModelType]()
         
         for timelineKey in container.allKeys {
+            //print(timelineKey)
             
             switch timelineKey {
                 
@@ -243,17 +249,17 @@ extension BoneAnimationModel: SpineDecodableDictionary {
                 let rotateKeyframes = try container.decode([BoneKeyframeRotateModel].self, forKey: .rotate)
                 let adjustedRotateKeyframes = adjustedCurves(rotateKeyframes)
                 timelines.append(BoneAnimationTimelineModelType.rotate(adjustedRotateKeyframes))
-
+                
             case .translate:
                 let translateKeyframes = try container.decode([BoneKeyframeTranslateModel].self, forKey: .translate)
                 let adjustedTranslateKeyframes = adjustedCurves(translateKeyframes)
                 timelines.append(BoneAnimationTimelineModelType.translate(adjustedTranslateKeyframes))
-
+                
             case .scale:
                 let scaleKeyframes = try container.decode([BoneKeyframeScaleModel].self, forKey: .scale)
                 let adjustedScaleKeyframes = adjustedCurves(scaleKeyframes)
                 timelines.append(BoneAnimationTimelineModelType.scale(adjustedScaleKeyframes))
-
+                
             case .shear:
                 let shearKeyframes = try container.decode([BoneKeyframeShearModel].self, forKey: .shear)
                 let adjustedShearKeyframes = adjustedCurves(shearKeyframes)
@@ -340,10 +346,10 @@ struct IKConstraintAnimationModel: AnimationGroupModel {
 extension IKConstraintAnimationModel: SpineDecodableArray {
     
     init(_ name: String, _ container: inout UnkeyedDecodingContainer) throws {
-
+        
         var keyframes = [IKConstraintKeyframeModel]()
         while !container.isAtEnd {
-
+            
             keyframes.append(try container.decode(IKConstraintKeyframeModel.self))
         }
         
@@ -384,15 +390,15 @@ struct DeformSkinAnimationModel: AnimationGroupModel {
 }
 
 extension DeformSkinAnimationModel: SpineDecodableDictionary {
-
+    
     typealias KeysType = SpineNameKey
-
+    
     init(_ name: String, _ container: KeyedDecodingContainer<KeysType>) throws {
-
+        
         var slots = [DeformSlotAnimationModel]()
-
+        
         for slotKey in container.allKeys {
-
+            
             let slotContainer = try container.nestedContainer(keyedBy: DeformSlotAnimationModel.KeysType.self, forKey: slotKey)
             let slotAnimation = try DeformSlotAnimationModel(slotKey.stringValue, slotContainer)
             slots.append(slotAnimation)
@@ -410,15 +416,15 @@ struct DeformSlotAnimationModel {
 }
 
 extension DeformSlotAnimationModel: SpineDecodableDictionary {
-
+    
     typealias KeysType = SpineNameKey
-
+    
     init(_ name: String, _ container: KeyedDecodingContainer<KeysType>) throws {
-
+        
         var meshes = [DeformMeshAnimationModel]()
-
+        
         for meshKey in container.allKeys {
-
+            
             var meshContainer = try container.nestedUnkeyedContainer(forKey: meshKey)
             let meshAnimation = try DeformMeshAnimationModel(meshKey.stringValue, &meshContainer)
             meshes.append(meshAnimation)
@@ -436,15 +442,15 @@ struct DeformMeshAnimationModel {
 }
 
 extension DeformMeshAnimationModel: SpineDecodableArray {
-
+    
     init(_ name: String, _ container: inout UnkeyedDecodingContainer) throws {
-
+        
         var keyframes = [DeformKeyframeModel]()
         while !container.isAtEnd {
-
+            
             keyframes.append(try container.decode(DeformKeyframeModel.self))
         }
-
+        
         self.mesh = name
         self.keyframes = keyframes
     }
@@ -458,12 +464,12 @@ protocol KeyframeModel {
 }
 
 protocol CurvedKeyframeModel {
-
+    
     var curve: CurveModelType { get set }
 }
 
 protocol BoneKeyframeModel: CurvedKeyframeModel {
-
+    
 }
 
 /**
@@ -482,7 +488,7 @@ func adjustedCurves<T:CurvedKeyframeModel>(_ input: [T]) -> [T]
         output.append(adjustedFrame)
         previousCurve = frame.curve
     }
-
+    
     return output
 }
 
@@ -502,10 +508,10 @@ struct BoneKeyframeRotateModel: BoneKeyframeModel {
     }
     
     // bezier curve init
-    init(_ time: TimeInterval?, _ curve: CurveModelType.BezierCurveModel, _ angle: CGFloat?) {
+    init(_ time: TimeInterval?, _ curve: CurveModelType, _ angle: CGFloat?) {
         
         self.time = time ?? 0
-        self.curve = .bezier(curve)
+        self.curve = curve
         self.angle = angle ?? 0
     }
 }
@@ -528,19 +534,36 @@ extension BoneKeyframeRotateModel: Decodable {
         let time: TimeInterval? = try container.decodeIfPresent(TimeInterval.self, forKey: .time)
         let angle: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .angle)
         
-        do {
-            
-            let c1 = try container.decode(Float.self, forKey: .curve)
-            let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
-            let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
-            let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
-            
-            self.init(time, CurveModelType.BezierCurveModel(c1, c2, c3, c4), angle)
-            
-        } catch {
-            
-            let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
-            self.init(time, curve, angle)
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, model.flatMap { .bezier($0) } ?? .linear, angle)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, .stepped, angle)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+            } catch {
+                
+                let c1 = try container.decode(Float.self, forKey: .curve)
+                let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
+                let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
+                let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
+                
+                self.init(time, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)), angle)
+                
+            } catch {
+                
+                let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
+                self.init(time, curve, angle)
+            }
+        } else {
+            self.init(time, .linear, angle)
         }
     }
 }
@@ -561,10 +584,10 @@ struct BoneKeyframeTranslateModel: BoneKeyframeModel {
     }
     
     //bezier curve init
-    init(_ time: TimeInterval?, _ curve: CurveModelType.BezierCurveModel, _ x: CGFloat?, _ y: CGFloat?) {
+    init(_ time: TimeInterval?, _ curve: CurveModelType, _ x: CGFloat?, _ y: CGFloat?) {
         
         self.time = time ?? 0
-        self.curve = .bezier(curve)
+        self.curve = curve
         self.position = CGPoint(x: x ?? 0, y: y ?? 0)
     }
 }
@@ -589,20 +612,40 @@ extension BoneKeyframeTranslateModel: Decodable {
         let x: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .x)
         let y: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .y)
         
-        do {
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, model.flatMap { .bezier($0) } ?? .linear, x, y)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, .stepped, x, y)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+            } catch {
+                
+                let c1 = try container.decode(Float.self, forKey: .curve)
+                let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
+                let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
+                let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
+                
+                self.init(time, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)), x, y)
+                
+            } catch {
+                
+                let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
+                self.init(time, curve, x, y)
+            }
             
-            let c1 = try container.decode(Float.self, forKey: .curve)
-            let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
-            let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
-            let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
-            
-            self.init(time, CurveModelType.BezierCurveModel(c1, c2, c3, c4), x, y)
-            
-        } catch {
-            
-            let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
-            self.init(time, curve, x, y)
+        } else {
+            self.init(time, .linear, x, y)
         }
+        
+        
     }
 }
 
@@ -622,10 +665,10 @@ struct BoneKeyframeScaleModel: BoneKeyframeModel {
     }
     
     //bezier curve init
-    init(_ time: TimeInterval?, _ curve: CurveModelType.BezierCurveModel, _ x: CGFloat?, _ y: CGFloat?) {
+    init(_ time: TimeInterval?, _ curve: CurveModelType, _ x: CGFloat?, _ y: CGFloat?) {
         
         self.time = time ?? 0
-        self.curve = .bezier(curve)
+        self.curve = curve
         self.scale = CGVector(dx: x ?? 1, dy: y ?? 1)
     }
 }
@@ -650,19 +693,37 @@ extension BoneKeyframeScaleModel: Decodable {
         let x: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .x)
         let y: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .y)
         
-        do {
-            
-            let c1 = try container.decode(Float.self, forKey: .curve)
-            let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
-            let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
-            let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
-            
-            self.init(time, CurveModelType.BezierCurveModel(c1, c2, c3, c4), x, y)
-            
-        } catch {
-            
-            let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
-            self.init(time, curve, x, y)
+        
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, model.flatMap { .bezier($0) } ?? .linear, x, y)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, .stepped, x, y)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+            } catch {
+                
+                let c1 = try container.decode(Float.self, forKey: .curve)
+                let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
+                let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
+                let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
+                
+                self.init(time, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)), x, y)
+                
+            } catch {
+                
+                let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
+                self.init(time, curve, x, y)
+            }
+        } else {
+            self.init(time, .linear, x, y)
         }
     }
 }
@@ -683,10 +744,10 @@ struct BoneKeyframeShearModel: BoneKeyframeModel {
     }
     
     //bezier curve init
-    init(_ time: TimeInterval?, _ curve: CurveModelType.BezierCurveModel, _ x: CGFloat?, _ y: CGFloat?) {
+    init(_ time: TimeInterval?, _ curve: CurveModelType, _ x: CGFloat?, _ y: CGFloat?) {
         
         self.time = time ?? 0
-        self.curve = .bezier(curve)
+        self.curve = curve
         self.shear = CGVector(dx: x ?? 0, dy: y ?? 0)
     }
 }
@@ -711,19 +772,36 @@ extension BoneKeyframeShearModel: Decodable {
         let x: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .x)
         let y: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .y)
         
-        do {
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, model.flatMap { .bezier($0) } ?? .linear, x, y)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, .stepped, x, y)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+        } catch {
             
             let c1 = try container.decode(Float.self, forKey: .curve)
             let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
             let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
             let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
             
-            self.init(time, CurveModelType.BezierCurveModel(c1, c2, c3, c4), x, y)
+            self.init(time, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)), x, y)
             
         } catch {
             
             let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
             self.init(time, curve, x, y)
+        }
+        } else {
+            self.init(time, .linear, x, y)
         }
     }
 }
@@ -780,11 +858,11 @@ struct SlotKeyframeColorModel: SlotKeyframeModel, CurvedKeyframeModel {
     }
     
     //bezier curve type init
-    init(_ time: TimeInterval?, _ color: String, _ curve: CurveModelType.BezierCurveModel) {
+    init(_ time: TimeInterval?, _ color: String, _ curve: CurveModelType) {
         
         self.time = time ?? 0
         self.color = ColorModel(color)
-        self.curve = .bezier(curve)
+        self.curve = curve
     }
 }
 
@@ -806,19 +884,37 @@ extension SlotKeyframeColorModel: Decodable {
         let time: TimeInterval? = try container.decodeIfPresent(TimeInterval.self, forKey: .time)
         let color: String = try container.decode(String.self, forKey: .color)
         
-        do {
-            
-            let c1 = try container.decode(Float.self, forKey: .curve)
-            let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
-            let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
-            let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
-            
-            self.init(time, color, CurveModelType.BezierCurveModel(c1, c2, c3, c4))
-            
-        } catch {
-            
-            let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
-            self.init(time, color, curve)
+        
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, color, model.flatMap { .bezier($0) } ?? .linear)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, color, .stepped)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+            } catch {
+                
+                let c1 = try container.decode(Float.self, forKey: .curve)
+                let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
+                let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
+                let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
+                
+                self.init(time, color, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)))
+                
+            } catch {
+                
+                let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
+                self.init(time, color, curve)
+            }
+        } else {
+            self.init(time, color, .linear)
         }
     }
 }
@@ -921,12 +1017,12 @@ struct DeformKeyframeModel: KeyframeModel {
     }
     
     //bezier curve type init
-    init(_ time: TimeInterval?, _ offset: Int?, _ vertices: [CGFloat]?, _ curve: CurveModelType.BezierCurveModel) {
+    init(_ time: TimeInterval?, _ offset: Int?, _ vertices: [CGFloat]?, _ curve: CurveModelType) {
         
         self.time = time ?? 0
         self.offset = offset ?? 0
         self.vertices = vertices
-        self.curve = .bezier(curve)
+        self.curve = curve
     }
 }
 
@@ -950,19 +1046,36 @@ extension DeformKeyframeModel: Decodable {
         let offset: Int? = try container.decodeIfPresent(Int.self, forKey: .offset)
         let vertices: [CGFloat]? = try container.decodeIfPresent([CGFloat].self, forKey: .vertices)
         
-        do {
-            
-            let c1 = try container.decode(Float.self, forKey: .curve)
-            let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
-            let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
-            let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
-            
-            self.init(time, offset, vertices, CurveModelType.BezierCurveModel(c1, c2, c3, c4))
-            
-        } catch {
-            
-            let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
-            self.init(time, offset, vertices, curve)
+        if container.contains(.curve) {
+            do {
+                let curves = try container.decode([Float].self, forKey: .curve)
+                let model = CurveModelType.BezierCurveModel(curves)
+                self.init(time, offset, vertices, model.flatMap { .bezier($0) } ?? .linear)
+                
+            } catch {
+                let curves = try container.decode(String.self, forKey: .curve)
+                if curves == "stepped" {
+                    self.init(time, offset, vertices, .stepped)
+                } else {
+                    throw DecodingError.typeMismatch(BoneKeyframeTranslateModel.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Encoded payload not of an expected type"))
+                }
+                
+            } catch {
+                
+                let c1 = try container.decode(Float.self, forKey: .curve)
+                let c2 = try container.decodeIfPresent(Float.self, forKey: .c2)
+                let c3 = try container.decodeIfPresent(Float.self, forKey: .c3)
+                let c4 = try container.decodeIfPresent(Float.self, forKey: .c4)
+                
+                self.init(time, offset, vertices, .bezier(CurveModelType.BezierCurveModel(c1, c2, c3, c4)))
+                
+            } catch {
+                
+                let curve: String? = try container.decodeIfPresent(String.self, forKey: .curve)
+                self.init(time, offset, vertices, curve)
+            }
+        } else {
+            self.init(time, offset, vertices, .linear)
         }
     }
 }
@@ -1017,7 +1130,7 @@ struct DrawOrderKeyframeModel: KeyframeModel, AnimationGroupModel {
     
     let time: TimeInterval
     let offsets: [DrawOrderOffsetModel]?
-        
+    
     init(_ time: TimeInterval?, _ offsets: [DrawOrderOffsetModel]?) {
         
         self.time = time ?? 0
