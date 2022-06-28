@@ -526,13 +526,14 @@ extension BoneKeyframeRotateModel: Decodable {
         case c3
         case c4
         case angle
+        case value
     }
     
     init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: Keys.self)
         let time: TimeInterval? = try container.decodeIfPresent(TimeInterval.self, forKey: .time)
-        let angle: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .angle)
+        let angle: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .angle) ?? container.decodeIfPresent(CGFloat.self, forKey: .value)
         
         if container.contains(.curve) {
             do {
