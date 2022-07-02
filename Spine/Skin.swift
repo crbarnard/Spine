@@ -13,9 +13,9 @@ class Skin {
     let name: String
     let model: SkinModel
 //    let atlases: [String : SKTextureAtlas]?
-    let atlas: SKTextureAtlas?
+    let provider: SKTextureProvider
     
-    init(_ name: String, _ model: SkinModel, atlas folder: String?) {
+    init(_ name: String, _ model: SkinModel, provider: SKTextureProvider) {
         
         self.name = name
         self.model = model
@@ -40,14 +40,14 @@ class Skin {
 //            atlases[atlasName] = SKTextureAtlas(named: atlasPath)
 //        }
         
-        self.atlas = folder.flatMap(SKTextureAtlas.init)
+        self.provider = provider
     }
     
-    init(_ name: String, _ model: SkinModel, _ atlas: SKTextureAtlas?) {
+    init(_ name: String, _ model: SkinModel, _ provider: SKTextureProvider) {
         
         self.name = name
         self.model = model
-        self.atlas = atlas
+        self.provider = provider
     }
     
     func attachment(_ model: AttachmentModelType) -> Attachment? {
@@ -71,7 +71,7 @@ class Skin {
     
     func texture(with name: String, from atlasName: String) -> SKTexture? {
         print("getting texture \(name)")
-        return atlas?.textureNamed(name)
+        return provider.texture(named: name)
     }
 }
 

@@ -28,13 +28,8 @@ public class Skeleton: SKNode {
      - parameter model: the skeleton model.
      - parameter folder: name of the folder with image atlases. *optional*
      */
-    public init(name: String, model: SpineModel, atlas folder: String? = nil) {
-
-        super.init()
-        self.createBones(model)
-        self.createSlots(model)
-        self.createSkins(name: name, model: model, atlas: folder)
-        self.createAnimations(model)
+    public convenience init(name: String, model: SpineModel, atlas folder: String) {
+        self.init(name: name, model: model, provider: SKTextureAtlasProvider(atlas: SKTextureAtlas(named: folder)))
     }
     
     /**
@@ -43,12 +38,15 @@ public class Skeleton: SKNode {
      - parameter model: the skeleton model.
      - parameter atlases: atlases dictionary
      */
-    public init(name: String, model: SpineModel, atlas: SKTextureAtlas) {
-        
+    public convenience init(name: String, model: SpineModel, atlas: SKTextureAtlas) {
+        self.init(name: name, model: model, provider: SKTextureAtlasProvider(atlas: atlas))
+    }
+    
+    public init(name: String, model: SpineModel, provider: SKTextureProvider) {
         super.init()
         self.createBones(model)
         self.createSlots(model)
-        self.createSkins(name: name, model: model, atlas: atlas)
+        self.createSkins(name: name, model: model, provider: provider)
         self.createAnimations(model)
     }
     
@@ -64,7 +62,7 @@ public class Skeleton: SKNode {
      - parameter folder: name of the folder with image atlases. *optional*
      - parameter skin: the name of the skin that you want to apply to 'Skeleton'. *optional*
      */
-    public convenience init?(fromJSON name: String, atlas folder: String? = nil, skin: String? = nil) {
+    public convenience init?(fromJSON name: String, skin: String? = nil, provider: SKTextureProvider) {
         
         guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
               let json = try? Data(contentsOf: url),
@@ -73,8 +71,8 @@ public class Skeleton: SKNode {
                 return nil
         }
         
-        self.init(name: name, model: model, atlas: folder)
-        applySkin(named: skin)
+        self.init(name: name, model: model,  provider: provider)
+        
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -134,19 +132,11 @@ public class Skeleton: SKNode {
         }
     }
     
-    func createSkins(name: String, model: SpineModel, atlas folder: String? ) {
+    func createSkins(name: String, model: SpineModel, provider: SKTextureProvider) {
         
         self.skins = model.skins?.map({ (skinModel) -> Skin in
             
-            return Skin(name, skinModel, atlas: folder)
-        })
-    }
-    
-    func createSkins(name: String, model: SpineModel, atlas: SKTextureAtlas) {
-        
-        self.skins = model.skins?.map({ (skinModel) -> Skin in
-            
-            return Skin(name, skinModel, atlas)
+            return Skin(name, skinModel, provider)
         })
     }
     
