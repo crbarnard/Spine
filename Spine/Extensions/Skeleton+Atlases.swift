@@ -14,25 +14,25 @@ extension Skeleton {
      A list of all texture atlases for all of the `Slots` of the `Skeleton`.
      Each atlas is represented only once.
      */
-    public var atlases: [SKTextureAtlas]? {
-        get {
-            
-            var atlasesMutable = Set<SKTextureAtlas>()
-            
-            guard let skins = skins else {
-                
-                return nil
-            }
-            
-            for skin in skins {
-                if let atlas = skin.atlas {
-                    atlasesMutable.insert(atlas)
-                }
-            }
-            
-            return Array(atlasesMutable)
-        }
-    }
+//    public var atlases: [SKTextureAtlas]? {
+//        get {
+//
+//            var atlasesMutable = Set<SKTextureAtlas>()
+//
+//            guard let skins = skins else {
+//
+//                return nil
+//            }
+//
+//            for skin in skins {
+//                if let atlas = skin.atlas {
+//                    atlasesMutable.insert(atlas)
+//                }
+//            }
+//
+//            return Array(atlasesMutable)
+//        }
+//    }
     
     /**
      Preloads all the atlases for the 'Skeleton' and invokes the callback
@@ -42,16 +42,17 @@ extension Skeleton {
      */
     public func preloadTextureAtlases(withCompletionHandler completionHandler: @escaping (_ succeed: Bool) -> Swift.Void){
         
-        guard let atlases = atlases else {
-            
-            completionHandler(false)
-            return
-        }
-        
-        SKTextureAtlas.preloadTextureAtlases(atlases) {
-            
-            completionHandler(true)
-        }
+        completionHandler(true)
+//        guard let atlases = atlases else {
+//            
+//            completionHandler(false)
+//            return
+//        }
+//        
+//        SKTextureAtlas.preloadTextureAtlases(atlases) {
+//            
+//            completionHandler(true)
+//        }
     }
     
     /**
@@ -62,19 +63,20 @@ extension Skeleton {
      */
     public class func preloadTextureAtlases(_ skeletons: [Skeleton], withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
         
-        var atlasesMutable = Set<SKTextureAtlas>()
-        
-        for skeleton in skeletons {
-            
-            if let atlases = skeleton.atlases {
-                
-                atlasesMutable = atlasesMutable.union(atlases)
-            }
-        }
-        
-        SKTextureAtlas.preloadTextureAtlases(Array(atlasesMutable)) {
-            
-            completionHandler()
-        }
+        completionHandler()
+//        var atlasesMutable = Set<SKTextureAtlas>()
+//
+//        for skeleton in skeletons {
+//
+//            if let atlases = skeleton.atlases {
+//
+//                atlasesMutable = atlasesMutable.union(atlases)
+//            }
+//        }
+//
+//        SKTextureAtlas.preloadTextureAtlases(Array(atlasesMutable)) {
+//
+//            completionHandler()
+//        }
     }
 }
