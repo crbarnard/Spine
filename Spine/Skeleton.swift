@@ -80,7 +80,7 @@ public class Skeleton: SKNode {
     }
     
     public var skinNames: [String] {
-        return skins?.map { $0.model.name } ?? []
+        return skins?.map { $0.model.name }.filter { $0 != "default" } ?? []
     }
 
     //MARK: - Private
