@@ -28,12 +28,12 @@ public class Skeleton: SKNode {
      - parameter model: the skeleton model.
      - parameter folder: name of the folder with image atlases. *optional*
      */
-    public init(_ model: SpineModel, atlas folder: String? = nil) {
+    public init(name: String, model: SpineModel, atlas folder: String? = nil) {
 
         super.init()
         self.createBones(model)
         self.createSlots(model)
-        self.createSkins(model, atlas: folder)
+        self.createSkins(name: name, model: model, atlas: folder)
         self.createAnimations(model)
     }
     
@@ -43,12 +43,12 @@ public class Skeleton: SKNode {
      - parameter model: the skeleton model.
      - parameter atlases: atlases dictionary
      */
-    public init(_ model: SpineModel, _ atlases: [String : SKTextureAtlas]) {
+    public init(name: String, model: SpineModel, atlas: SKTextureAtlas) {
         
         super.init()
         self.createBones(model)
         self.createSlots(model)
-        self.createSkins(model, atlases)
+        self.createSkins(name: name, model: model, atlas: atlas)
         self.createAnimations(model)
     }
     
@@ -73,7 +73,7 @@ public class Skeleton: SKNode {
                 return nil
         }
         
-        self.init(model, atlas: folder)
+        self.init(name: name, model: model, atlas: folder)
         applySkin(named: skin)
     }
     
@@ -121,6 +121,8 @@ public class Skeleton: SKNode {
                     
                     let slot = Slot(slotModel, slotOrder)
                     bone.addChild(slot)
+                } else {
+                    print("missing bone " + "//\(boneName)")
                 }
                 
                 slotOrder += 1
@@ -128,19 +130,19 @@ public class Skeleton: SKNode {
         }
     }
     
-    func createSkins(_ model: SpineModel, atlas folder: String? ) {
+    func createSkins(name: String, model: SpineModel, atlas folder: String? ) {
         
         self.skins = model.skins?.map({ (skinModel) -> Skin in
             
-            return Skin(skinModel, atlas: folder)
+            return Skin(name, skinModel, atlas: folder)
         })
     }
     
-    func createSkins(_ model: SpineModel, _ atlases: [String : SKTextureAtlas]) {
+    func createSkins(name: String, model: SpineModel, atlas: SKTextureAtlas) {
         
         self.skins = model.skins?.map({ (skinModel) -> Skin in
             
-            return Skin(skinModel, atlases)
+            return Skin(name, skinModel, atlas)
         })
     }
     
