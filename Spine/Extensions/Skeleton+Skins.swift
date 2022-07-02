@@ -19,13 +19,13 @@ extension Skeleton {
      - parameter named: The name of the skin you want to apply.
      If a skin with that name is not found or skipped it will be added only attachments for the 'default' skin.
      */
-    public func applySkin(named: String? = nil) {
+    public func applySkin(named skinName: String? = nil) {
         
         var skinsNames: Set = ["default"]
         
-        if let named = named {
+        if let skinName = skinName {
             
-            skinsNames.insert(named)
+            skinsNames.insert(skinName)
         }
         
         guard let skins = skins?.filter({ skinsNames.contains($0.model.name) }) else {
