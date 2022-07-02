@@ -82,6 +82,26 @@ public class Skeleton: SKNode {
         }
     }
     
+    public convenience init?(url: URL, skin: String? = nil, provider: SKTextureProvider) throws {
+        guard
+            let json = try? Data(contentsOf: url),
+            let model = try? JSONDecoder().decode(SpineModel.self, from: json)
+        else {
+            return nil
+        }
+        
+        let name = url.deletingPathExtension().lastPathComponent
+        self.init(name: name, model: model, provider: provider)
+        
+        if let skin = skin, model.skins?.map(\.name).contains(skin) ?? false {
+            applySkin(named: skin)
+        } else {
+            if let skin = model.skins?.first?.name {
+                applySkin(named: skin)
+            }
+        }
+    }
+    
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
