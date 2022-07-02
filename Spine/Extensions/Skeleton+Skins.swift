@@ -55,7 +55,7 @@ extension Skeleton {
                     if let attachment = skin.attachment(attachmentModel) {
                         
                         if let region = attachment as? RegionAttachment {
-                            
+                            slot.removeAllChildren()
                             slot.addChild(region)
                             
                         } else if let boundingBox = attachment as? BoundingBoxAttachment {
