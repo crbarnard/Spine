@@ -80,6 +80,10 @@ public class Skeleton: SKNode {
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    public var skinNames: [String] {
+        return skins?.map { $0.model.name } ?? []
+    }
 
     //MARK: - Private
     
