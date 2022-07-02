@@ -73,6 +73,13 @@ public class Skeleton: SKNode {
         
         self.init(name: name, model: model,  provider: provider)
         
+        if let skin = skin, model.skins?.map(\.name).contains(skin) ?? false {
+            applySkin(named: skin)
+        } else {
+            if let skin = model.skins?.first?.name {
+                applySkin(named: skin)
+            }
+        }
     }
     
     required public init?(coder aDecoder: NSCoder) {
