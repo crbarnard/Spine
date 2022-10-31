@@ -70,7 +70,7 @@ class Skin {
     }
     
     func texture(with name: String, from atlasName: String) -> SKTexture? {
-        print("getting texture \(name)")
+//        print("getting texture \(name)")
         return provider.texture(named: name)
     }
 }
