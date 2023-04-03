@@ -85,7 +85,8 @@ func textureName(from name: String, actualName: String? , path: String?, prefix:
 //    return splittedResultName.last ?? name
     
     
-    return prefix + "_" + resultName.replacingOccurrences(of: "/", with: "_")
+//    return prefix + "_" +
+    return resultName.replacingOccurrences(of: "/", with: "_")
 }
 
 func textureName(for attachmentType: AttachmentModelType, prefix: String) -> String? {
