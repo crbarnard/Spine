@@ -68,8 +68,8 @@ extension SkeletonModel: Decodable {
         let container = try decoder.container(keyedBy: Keys.self)
         let hash: String = try container.decode(String.self, forKey: .hash)
         let spine: String = try container.decode(String.self, forKey: .spine)
-        let width: CGFloat = try container.decode(CGFloat.self, forKey: .width)
-        let height: CGFloat = try container.decode(CGFloat.self, forKey: .height)
+        let width: CGFloat = try container.decodeIfPresent(CGFloat.self, forKey: .width) ?? 0
+        let height: CGFloat = try container.decodeIfPresent(CGFloat.self, forKey: .height) ?? 0
         let fps: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .fps)
         let path: String? = try container.decodeIfPresent(String.self, forKey: .path)
         
