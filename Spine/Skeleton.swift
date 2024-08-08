@@ -62,13 +62,25 @@ public class Skeleton: SKNode {
      - parameter folder: name of the folder with image atlases. *optional*
      - parameter skin: the name of the skin that you want to apply to 'Skeleton'. *optional*
      */
-    public convenience init?(fromJSON name: String, skin: String? = nil, provider: SKTextureProvider) {
+    public convenience init?(fromJSON name: String, skin: String? = nil, provider: SKTextureProvider) throws {
         
-        guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
-              let json = try? Data(contentsOf: url),
-              let model = try? JSONDecoder().decode(SpineModel.self, from: json) else {
-                
-                return nil
+        var json: Data!
+        var model: SpineModel!
+        
+        guard let url = Bundle.main.url(forResource: name, withExtension: "json") else {
+            throw InitializationError.missing(path: name)
+        }
+        
+        do {
+            json = try Data(contentsOf: url)
+        } catch {
+            throw InitializationError.badData(error)
+        }
+        
+        do {
+            model = try JSONDecoder().decode(SpineModel.self, from: json)
+        } catch {
+            throw InitializationError.badJson(error)
         }
         
         self.init(name: name, model: model,  provider: provider)
@@ -80,14 +92,24 @@ public class Skeleton: SKNode {
                 applySkin(named: skin)
             }
         }
+        
     }
     
     public convenience init?(url: URL, skin: String? = nil, provider: SKTextureProvider) throws {
-        guard
-            let json = try? Data(contentsOf: url),
-            let model = try? JSONDecoder().decode(SpineModel.self, from: json)
-        else {
-            return nil
+        
+        var json: Data!
+        var model: SpineModel!
+        
+        do {
+            json = try Data(contentsOf: url)
+        } catch {
+            throw InitializationError.badData(error)
+        }
+        
+        do {
+            model = try JSONDecoder().decode(SpineModel.self, from: json)
+        } catch {
+            throw InitializationError.badJson(error)
         }
         
         let name = url.deletingPathExtension().lastPathComponent
@@ -176,3 +198,13 @@ public class Skeleton: SKNode {
     }
 }
 
+
+extension Skeleton {
+    
+    public enum InitializationError: Error {
+        case missing(path: String)
+        case badData(Error)
+        case badJson(Error)
+    }
+    
+}
