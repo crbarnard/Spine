@@ -184,7 +184,7 @@ extension TransformConstraintModel: Decodable {
         
         let container = try decoder.container(keyedBy: TransformConstraintModelKeys.self)
         let name: String = try container.decode(String.self, forKey: .name)
-        let order: UInt = try container.decode(UInt.self, forKey: .order)
+        let order: UInt = try container.decodeIfPresent(UInt.self, forKey: .order) ?? 99
         let bones: [String] = try container.decode([String].self, forKey: .bones)
         let target: String = try container.decode(String.self, forKey: .target)
         let rotation: CGFloat? = try container.decodeIfPresent(CGFloat.self, forKey: .rotation)
