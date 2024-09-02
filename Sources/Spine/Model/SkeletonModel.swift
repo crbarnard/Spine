@@ -48,11 +48,11 @@ extension SkeletonModel: Decodable {
         let container = try decoder.container(keyedBy: Keys.self)
         hash = try container.decode(String.self, forKey: .hash)
         spine = try container.decode(String.self, forKey: .spine)
-        let x = try container.decode(CGFloat.self, forKey: .x)
-        let y = try container.decode(CGFloat.self, forKey: .y)
+        let x = try container.decodeIfPresent(CGFloat.self, forKey: .x) ?? 0
+        let y = try container.decodeIfPresent(CGFloat.self, forKey: .y) ?? 0
         position = .init(x: x, y: y)
-        let width = try container.decode(CGFloat.self, forKey: .width)
-        let height = try container.decode(CGFloat.self, forKey: .height)
+        let width = try container.decodeIfPresent(CGFloat.self, forKey: .width) ?? 0
+        let height = try container.decodeIfPresent(CGFloat.self, forKey: .height) ?? 0
         size = .init(width: width, height: height)
         fps = try container.decodeIfPresent(CGFloat.self, forKey: .fps) ?? 30
         images = try container.decodeIfPresent(String.self, forKey: .images)

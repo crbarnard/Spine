@@ -16,11 +16,11 @@ public extension Skeleton {
      */
     var atlases: [SKTextureAtlas] {
             
-        skins.map { skin in
+        skins.compactMap { skin in
             
-            skin.atlases.keys.compactMap { atlasName in
+            skin.atlases?.keys.compactMap { atlasName in
                 
-                skin.atlases[atlasName]
+                skin.atlases?[atlasName]
             }
             
         }.reduce(Set<SKTextureAtlas>()) { partialResult, atlas in

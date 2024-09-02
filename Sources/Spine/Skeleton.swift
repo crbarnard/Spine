@@ -56,7 +56,7 @@ public class Skeleton: SKNode {
      */
     public convenience init(_ model: SpineModel, atlas folder: String? = nil) {
 
-        let skins = Self.createSkins(model, atlas: folder)
+        let skins = Self.createSkins(model, atlas: folder, provider: nil)
         let animations = Self.createAnimations(model)
         self.init(skins: skins, animations: animations)
         
@@ -72,7 +72,7 @@ public class Skeleton: SKNode {
      */
     public convenience init(_ model: SpineModel, _ atlases: [String : SKTextureAtlas]) {
         
-        let skins = Self.createSkins(model, atlases)
+        let skins = Self.createSkins(model, atlases, provider: nil)
         let animations = Self.createAnimations(model)
         self.init(skins: skins, animations: animations)
         
@@ -186,6 +186,7 @@ extension Skeleton {
             
             let boneName = Bone.generateName(slotModel.bone)
             guard let bone = childNode(withName: "//\(boneName)") else {
+                print("missing bone " + "//\(boneName)")
                 continue
             }
             
@@ -194,14 +195,14 @@ extension Skeleton {
         }
     }
     
-    static func createSkins(_ model: SpineModel, atlas folder: String?) -> [Skin] {
+    static func createSkins(_ model: SpineModel, atlas folder: String?, provider: SKTextureProvider?) -> [Skin] {
         
-        model.skins.map{ Skin($0, atlas: folder) }
+        model.skins.map{ Skin($0, atlas: folder, provider: provider) }
     }
     
-    static func createSkins(_ model: SpineModel, _ atlases: [String : SKTextureAtlas]) -> [Skin] {
+    static func createSkins(_ model: SpineModel, _ atlases: [String : SKTextureAtlas]?, provider: SKTextureProvider?) -> [Skin] {
         
-        model.skins.map{ Skin($0, atlases) }
+        model.skins.map{ Skin($0, atlases, provider: provider) }
     }
     
     static func createAnimations(_ model: SpineModel) -> [Animation] {
@@ -297,3 +298,96 @@ extension Skeleton: Defaultable {
     }
 }
 
+
+
+
+
+
+extension Skeleton {
+    
+    public var skinNames: [String] {
+        return skins.map { $0.model.name }.filter { $0 != "default" }
+    }
+    
+    public enum InitializationError: Error {
+        case missing(path: String)
+        case badData(Error)
+        case badJson(Error)
+    }
+    
+    func createSkins(name: String, model: SpineModel, provider: SKTextureProvider) {
+        self.skins = model.skins.map({ (skinModel) -> Skin in
+            return Skin(skinModel, nil, provider: provider)
+        })
+    }
+    
+    public convenience init(model: SpineModel, provider: SKTextureProvider) {
+        let skins = Self.createSkins(model, atlas: nil, provider: provider)
+        let animations = Self.createAnimations(model)
+        self.init(skins: skins, animations: animations)
+        self.createBones(model)
+        self.createSlots(model)
+    }
+    
+    public convenience init?(url: URL, skin: String? = nil, provider: SKTextureProvider) throws {
+        var json: Data!
+        var model: SpineModel!
+        
+        do {
+            json = try Data(contentsOf: url)
+        } catch {
+            throw InitializationError.badData(error)
+        }
+        
+        do {
+            model = try JSONDecoder().decode(SpineModel.self, from: json)
+        } catch {
+            throw InitializationError.badJson(error)
+        }
+
+        self.init(model: model, provider: provider)
+        
+        if let skin = skin, model.skins.map(\.name).contains(skin) {
+            try apply(skin: skin)
+        } else {
+            if let skin = model.skins.first?.name {
+                try apply(skin: skin)
+            }
+        }
+    }
+    
+    public convenience init?(fromJSON name: String, skin: String? = nil, provider: SKTextureProvider) throws {
+        
+        var json: Data!
+        var model: SpineModel!
+        
+        guard let url = Bundle.main.url(forResource: name, withExtension: "json") else {
+            throw InitializationError.missing(path: name)
+        }
+        
+        do {
+            json = try Data(contentsOf: url)
+        } catch {
+            throw InitializationError.badData(error)
+        }
+        
+        do {
+            model = try JSONDecoder().decode(SpineModel.self, from: json)
+        } catch {
+            throw InitializationError.badJson(error)
+        }
+        
+        self.init(model: model,  provider: provider)
+        
+        if let skin = skin, model.skins.map(\.name).contains(skin) {
+            try apply(skin: skin)
+        } else {
+            if let skin = model.skins.first?.name {
+                try apply(skin: skin)
+            }
+        }
+        
+    }
+    
+    
+}

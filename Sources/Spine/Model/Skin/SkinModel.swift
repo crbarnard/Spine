@@ -58,15 +58,19 @@ extension SkinModel: Decodable {
         let container = try decoder.container(keyedBy: Keys.self)
         name = try container.decode(String.self, forKey: .name)
         
-        let slotsContainer = try container.nestedContainer(keyedBy: SpineNameKey.self, forKey: .attachments)
         
         var slots = [Slot]()
         
-        for slotKey in slotsContainer.allKeys {
+        if container.contains(.attachments) {
             
-            let slotContainer = try slotsContainer.nestedContainer(keyedBy: Slot.KeysType.self, forKey: slotKey)
-            let slot = try Slot(slotKey.stringValue, slotContainer)
-            slots.append(slot)
+            let slotsContainer = try container.nestedContainer(keyedBy: SpineNameKey.self, forKey: .attachments)
+            
+            for slotKey in slotsContainer.allKeys {
+                
+                let slotContainer = try slotsContainer.nestedContainer(keyedBy: Slot.KeysType.self, forKey: slotKey)
+                let slot = try Slot(slotKey.stringValue, slotContainer)
+                slots.append(slot)
+            }
         }
 
         self.slots = slots

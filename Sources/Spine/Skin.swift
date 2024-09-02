@@ -12,11 +12,13 @@ class Skin {
     
     var name: String { model.name }
     let model: SkinModel
-    let atlases: [String : SKTextureAtlas]
+    let atlases: [String : SKTextureAtlas]?
+    let provider: SKTextureProvider?
     
-    init(_ model: SkinModel, atlas folder: String?) {
+    init(_ model: SkinModel, atlas folder: String?, provider: SKTextureProvider?) {
         
         self.model = model
+        self.provider = provider
         var atlases = [String : SKTextureAtlas]()
         
         for atlasName in model.atlasesNames {
@@ -33,17 +35,18 @@ class Skin {
         self.atlases = atlases
     }
     
-    init(_ model: SkinModel, _ atlases: [String : SKTextureAtlas]) {
+    init(_ model: SkinModel, _ atlases: [String : SKTextureAtlas]?, provider: SKTextureProvider?) {
         
         self.model = model
         self.atlases = atlases
+        self.provider = provider
     }
     
     func attachment(_ model: AttachmentModel) -> Attachment? {
         
         if let texturedModel = model as? AttachmentTexturedModel {
             
-            guard let texture = texture(with: texturedModel.textureName, from: texturedModel.atlasName) else {
+            guard let texture = texture(with: texturedModel.textureName, from: texturedModel.atlasName) ?? provider?.texture(named: texturedModel.textureName) else {
                 return nil
             }
             
@@ -74,12 +77,14 @@ class Skin {
     
     func texture(with name: String, from atlasName: String) -> SKTexture? {
         
-        guard let atlas = atlases[atlasName],
-              let textureName = atlas.textureNames.first(where: { $0 == name }) else {
+        if let atlases {
+            guard let atlas = atlases[atlasName], let textureName = atlas.textureNames.first(where: { $0 == name }) else {
+                return nil
+            }
             
-            return nil
+            return atlas.textureNamed(textureName)
         }
         
-        return atlas.textureNamed(textureName)
+        return nil
     }
 }
