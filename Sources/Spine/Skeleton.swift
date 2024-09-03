@@ -191,6 +191,7 @@ extension Skeleton {
             }
             
             let slot = Slot(slotModel, index)
+            slot.skeleton = self
             bone.addChild(slot)
         }
     }
@@ -304,6 +305,19 @@ extension Skeleton: Defaultable {
 
 
 extension Skeleton {
+    
+    public override var zPosition: CGFloat {
+        didSet {
+            if zPosition == oldValue { return }
+            print("\(zPosition) \(oldValue)")
+            var nodesToProcess = children
+            while !nodesToProcess.isEmpty {
+                let currentNode = nodesToProcess.removeFirst()
+                currentNode.zPosition = zPosition + (currentNode.zPosition - oldValue)
+                nodesToProcess.append(contentsOf: currentNode.children)
+            }
+        }
+    }
     
     public var skinNames: [String] {
         return skins.map { $0.model.name }.filter { $0 != "default" }

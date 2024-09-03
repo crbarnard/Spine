@@ -14,6 +14,8 @@ class Slot: SKNode, Prefixable, Defaultable {
     let model: SlotModel
     let initialOrder: Int
     
+    weak var skeleton: Skeleton?
+    
     init(_ model: SlotModel, _ order: Int) {
         
         self.model = model
@@ -23,8 +25,14 @@ class Slot: SKNode, Prefixable, Defaultable {
     }
     
     func setOrder(to order: Int) {
+        let base = skeleton?.zPosition ?? 0
+        self.zPosition = base + CGFloat(order) * 0.01
         
-        self.zPosition = CGFloat(order) * 0.01
+        if let sprites = children.filter({ $0 is RegionAttachment }) as? [RegionAttachment] {
+            for sprite in sprites {
+                sprite.zPosition = zPosition
+            }
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
