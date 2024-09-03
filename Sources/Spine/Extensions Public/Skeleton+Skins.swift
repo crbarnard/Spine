@@ -76,4 +76,17 @@ public extension Skeleton {
             try? apply(skin: named)
         }
     }
+    
+    func resetSkins() {
+        for slotModel in slots {
+            guard let slot = slots.first(where: { $0.model.name == slotModel.name }) else {
+                continue
+            }
+            // reset slot
+            slot.removeAllChildren()
+            slot.physicsBody = nil
+            slot.dropToDefaults()
+        }
+    }
+    
 }

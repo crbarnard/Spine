@@ -363,7 +363,7 @@ extension Skeleton {
         
         if let skin = skin, model.skins.map(\.name).contains(skin) {
             try apply(skin: skin)
-        } else {
+        } else  if skin == "default"  {
             if let skin = model.skins.first?.name {
                 try apply(skin: skin)
             }
@@ -395,7 +395,7 @@ extension Skeleton {
         
         if let skin = skin, model.skins.map(\.name).contains(skin) {
             try apply(skin: skin)
-        } else {
+        } else if skin == "default" {
             if let skin = model.skins.first?.name {
                 try apply(skin: skin)
             }
