@@ -350,27 +350,27 @@ extension Animation {
     }
     
     static func reordered(slots: [SlotModel], offsets: [DrawOrderKeyframeModel.Offset]?) -> [SlotModel] {
-        
         guard let offsets = offsets else {
             return slots
         }
         
+        var changes: [(SlotModel,Int)] = []
         var result = slots
         
         for offset in offsets {
-            
-            guard let fromIndex = slots.firstIndex(where: { $0.name == offset.slot }) else {
-                continue
+            if let index = result.firstIndex(where: { $0.name == offset.slot }), let fromIndex = slots.firstIndex(where: { $0.name == offset.slot }) {
+                let slot = result.remove(at: index)
+                let toIndex = fromIndex + offset.offset
+                if slots.indices ~= fromIndex {
+                    changes.append((slot, toIndex))
+                }
             }
-            
-            let toIndex = fromIndex + offset.offset
-            guard toIndex >= 0, toIndex < slots.count else {
-                continue
-            }
-            
-            result.rearrange(from: fromIndex, to: toIndex)
         }
         
+        for (slot, index) in changes.sorted(by: { $0.1 < $1.1 }) {
+            result.insert(slot, at: index)
+        }
+            
         return result
     }
 }
