@@ -26,11 +26,11 @@ class Slot: SKNode, Prefixable, Defaultable {
     
     func setOrder(to order: Int) {
         let base = skeleton?.zPosition ?? 0
-        self.zPosition = base + CGFloat(order) * 0.01
+        self.zPosition = base + CGFloat(order) * 1000
         
         if let sprites = children.filter({ $0 is RegionAttachment }) as? [RegionAttachment] {
             for sprite in sprites {
-                sprite.zPosition = zPosition
+                sprite.zPosition = self.zPosition
             }
         }
     }
