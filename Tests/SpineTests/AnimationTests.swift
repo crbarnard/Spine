@@ -18,7 +18,7 @@ final class AnimationTests: XCTestCase {
             try setUpSlots()
             try setUpKeyframes()
         } catch {
-            XCTFail()
+            XCTFail("Setup function threw an error: \(error)")
         }
     }
     
