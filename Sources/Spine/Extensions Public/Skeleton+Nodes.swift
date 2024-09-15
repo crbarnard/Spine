@@ -62,7 +62,7 @@ public extension Skeleton {
     func regionAttachmentNode(named: String) -> SKSpriteNode? {
         
         let nodeName = RegionAttachment.generateName(named)
-        guard let node = self["//\(nodeName)"].first as? SKSpriteNode else {
+        guard let node = self[".//\(nodeName)"].first as? SKSpriteNode else {
             return nil
         }
         
@@ -83,7 +83,7 @@ public extension Skeleton {
     func slotNode(named: String) -> SKNode? {
         
         let nodeName = Slot.generateName(named)
-        guard let node = self["//\(nodeName)"].first else {
+        guard let node = self[".//\(nodeName)"].first else {
             return nil
         }
         
@@ -104,7 +104,7 @@ public extension Skeleton {
     func boneNode(named: String) -> SKSpriteNode? {
         
         let nodeName = Bone.generateName(named)
-        guard let node = self["//\(nodeName)"].first as? SKSpriteNode else {
+        guard let node = self[".//\(nodeName)"].first as? SKSpriteNode else {
             return nil
         }
         

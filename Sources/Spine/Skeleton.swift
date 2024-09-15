@@ -147,7 +147,7 @@ public class Skeleton: SKNode {
 
     //MARK: - Private
     
-    var slots: [Slot] { self["//\(Slot.prefix)*"].compactMap({ $0 as? Slot }) }
+    var slots: [Slot] { self[".//\(Slot.prefix)*"].compactMap({ $0 as? Slot }) }
     var skins: [Skin]
     var animations: [Animation]
     
@@ -185,8 +185,8 @@ extension Skeleton {
         for (index, slotModel) in model.slots.enumerated() {
             
             let boneName = Bone.generateName(slotModel.bone)
-            guard let bone = childNode(withName: "//\(boneName)") else {
-                print("missing bone " + "//\(boneName)")
+            guard let bone = childNode(withName: ".//\(boneName)") else {
+                print("missing bone " + ".//\(boneName)")
                 continue
             }
             
